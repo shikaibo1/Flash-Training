@@ -1,0 +1,27 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "src": "src/pages/Home.tsx"
+    },
+    {
+      "path": "/skills",
+      "src": "src/pages/SkillsLibrary.tsx"
+    },
+    {
+      "path": "/practice/:id",
+      "src": "src/pages/PracticeSession.tsx"
+    },
+    {
+      "path": "/profile",
+      "src": "src/pages/Profile.tsx"
+    }
+  ],
+  "components": [
+    {"name": "Header", "src": "src/components/Header.tsx"},
+    {"name": "SkillCard", "src": "src/components/SkillCard.tsx"},
+    {"name": "StreakBadge", "src": "src/components/StreakBadge.tsx"},
+    {"name": "FeedbackPanel", "src": "src/components/FeedbackPanel.tsx"},
+    {"name": "AudioVisualizer", "src": "src/components/AudioVisualizer.tsx"}
+  ]
+}

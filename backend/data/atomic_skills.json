@@ -1,0 +1,71 @@
+{
+  "atomic_skills": [
+    {
+      "atomic_skill_id": "as_001",
+      "name": "内容准确性",
+      "description": "内容准确无误，符合事实和逻辑",
+      "categories": [
+        "通用"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_002",
+      "name": "结构完整性",
+      "description": "内容结构完整，有清晰的开头、中间和结尾",
+      "categories": [
+        "写作",
+        "演讲",
+        "报告"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_003",
+      "name": "表达清晰度",
+      "description": "表达清晰易懂，逻辑连贯",
+      "categories": [
+        "通用"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_004",
+      "name": "语法规范性",
+      "description": "语法、拼写、标点符号使用正确",
+      "categories": [
+        "写作",
+        "代码"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_005",
+      "name": "逻辑合理性",
+      "description": "逻辑推理合理，前后一致",
+      "categories": [
+        "通用"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_006",
+      "name": "研究学术论文基础",
+      "description": "研究学术论文技能的基础要求和核心要素",
+      "categories": [
+        "研究学术论文"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_007",
+      "name": "研究学术论文进阶",
+      "description": "研究学术论文技能的进阶能力和高级技巧",
+      "categories": [
+        "研究学术论文"
+      ]
+    },
+    {
+      "atomic_skill_id": "as_008",
+      "name": "研究学术论文实践",
+      "description": "研究学术论文技能的实际应用和效果",
+      "categories": [
+        "研究学术论文"
+      ]
+    }
+  ]
+}

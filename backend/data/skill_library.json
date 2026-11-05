@@ -1,0 +1,242 @@
+{
+  "skills": [
+    {
+      "skill_id": "skill_speech",
+      "name": "演讲",
+      "display_name": "演讲技能练习",
+      "description": "提升公众演讲和表达能力",
+      "atomic_skills": [
+        "as_001",
+        "as_002",
+        "as_003"
+      ],
+      "generate_prompt": "你是演讲教练，请生成一个适合练习的演讲主题，要求：场景：{scene}，时长：{duration}，关键词：{keyword}。只需输出主题，无需其他内容。",
+      "evaluate_prompt": "你是演讲专家，评估以下演讲稿：\n\n演讲稿：{content}\n\n请按以下原子技能维度进行评估：\n1. 内容准确性（as_001）：内容是否准确无误，符合事实和逻辑\n2. 结构完整性（as_002）：内容结构是否完整，有清晰的开头、中间和结尾\n3. 表达清晰度（as_003）：表达是否清晰易懂，逻辑是否连贯\n\n输出格式：总分(1-10分)|原子技能得分详情(as_001:8分,as_002:7分,as_003:9分)|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "职场",
+        "duration": "3分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_interview",
+      "name": "面试",
+      "display_name": "面试技能练习",
+      "description": "提升面试表现和应答能力",
+      "atomic_skills": [
+        "as_001",
+        "as_003",
+        "as_005"
+      ],
+      "generate_prompt": "你是资深面试官，请生成一道针对{job_type}岗位的面试题，难度：{difficulty}。只需输出题目，无需其他内容。",
+      "evaluate_prompt": "你是面试专家，评估以下面试回答：\n\n回答：{content}\n\n请按以下原子技能维度进行评估：\n1. 内容准确性（as_001）：内容是否准确无误，符合事实和逻辑\n2. 表达清晰度（as_003）：表达是否清晰易懂，逻辑是否连贯\n3. 逻辑合理性（as_005）：逻辑推理是否合理，前后是否一致\n\n输出格式：总分(1-10分)|原子技能得分详情(as_001:8分,as_003:7分,as_005:9分)|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "job_type": "软件工程师",
+        "difficulty": "中等"
+      }
+    },
+    {
+      "skill_id": "skill_code",
+      "name": "代码",
+      "display_name": "编程技能练习",
+      "description": "提升编程能力和代码质量",
+      "atomic_skills": [
+        "as_001",
+        "as_004",
+        "as_005"
+      ],
+      "generate_prompt": "你是编程导师，请生成一道{language}语言的编程题，难度：{difficulty}，知识点：{topic}。题目应包含：问题描述、输入输出格式、示例。",
+      "evaluate_prompt": "你是代码审查专家，评估以下代码：\n\n代码：{content}\n\n请按以下原子技能维度进行评估：\n1. 内容准确性（as_001）：代码逻辑是否准确无误\n2. 语法规范性（as_004）：语法、拼写、标点符号使用是否正确\n3. 逻辑合理性（as_005）：逻辑推理是否合理，前后是否一致\n\n输出格式：总分(1-10分)|原子技能得分详情(as_001:8分,as_004:7分,as_005:9分)|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "language": "Python",
+        "difficulty": "中等",
+        "topic": "算法"
+      }
+    },
+    {
+      "skill_id": "skill_沟通交流",
+      "name": "沟通交流",
+      "display_name": "沟通交流技能练习",
+      "description": "沟通交流技能是通过口头、书面、非语言等多元载体，精准传递信息、倾听理解诉求、建立情感联结的能力；可消除信息偏差，推动跨场景协作与共识达成，维系良好人际关系，助力各类问题高效解决。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{scene}，\n难度：{difficulty}，\n时长：{duration}，\n关键词：{keyword}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{content}\n\n请按以下原子技能维度进行评估：\n1. 内容准确性（as_001）：内容是否准确无误，符合事实和逻辑\n2. 表达清晰度（as_003）：表达是否清晰易懂，逻辑是否连贯\n3. {target_skill_name}专业性：内容是否符合{target_skill_name}领域的专业要求\n\n输出格式：总分(1-10分)|原子技能得分详情(as_001:8分,as_003:7分,{target_skill_name}专业性:9分)|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_12306",
+      "name": "12306",
+      "display_name": "12306技能练习",
+      "description": "支持全国铁路火车票余票查询、车次时刻查询、预订/退票/改签操作，以及乘车须知、退票规则等铁路出行相关咨询，助力便捷规划铁路行程。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_法学",
+      "name": "法学",
+      "display_name": "法学技能练习",
+      "description": "法学技能是运用系统法律知识、逻辑分析方法及法定程序，识别法律风险、化解争议纠纷、规范合规运作的专业能力，可用于合同起草审查、案件代理辩护、企业合规管理、法律政策解读等场景，为个人与组织提供合法权益保障及决策支持。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "合同审查": {
+          "审查类型": "通用民商事合同",
+          "审查深度": "标准风险排查",
+          "风险等级标注": "启用",
+          "输出格式": "结构化风险报告+修订建议",
+          "法条依据版本": "最新生效法律法规"
+        },
+        "法律文书撰写": {
+          "文书类型": "民事起诉状",
+          "语言风格": "正式严谨",
+          "引用法条完整性": "核心法条+关联法条",
+          "模板适配度": "通用模板适配个性化案情",
+          "输出格式": "Word可编辑版+PDF定稿版"
+        },
+        "法律咨询解答": {
+          "咨询领域": "民商事纠纷",
+          "解答详细程度": "中等（核心结论+简要论证）",
+          "附带法条依据": "是",
+          "风险提示": "基础风险提示",
+          "解答语言": "专业术语结合通俗表述"
+        },
+        "案例法律分析": {
+          "分析维度": "法律关系梳理+裁判要点提炼+类似案例参考",
+          "参考案例数量": 3,
+          "地域判例优先级": "全国性指导案例优先",
+          "输出结论类型": "倾向性结论+多元方案预判"
+        },
+        "合规体系构建": {
+          "合规领域": "劳动用工合规",
+          "审查范围": "全流程合规排查",
+          "整改建议优先级": "高风险项优先整改",
+          "输出文档": "合规清单+整改方案+培训要点"
+        }
+      }
+    },
+    {
+      "skill_id": "skill_尊老爱幼",
+      "name": "尊老爱幼",
+      "display_name": "尊老爱幼技能练习",
+      "description": "尊老爱幼是兼具道德修养与社交协调功能的技能，通过尊重长者需求、关怀孩童成长，可维系家庭代际和谐，融洽社区与公共场景人际氛围，传承优良社会风尚，助力构建文明友善的社会环境。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_克服恐惧",
+      "name": "克服恐惧",
+      "display_name": "克服恐惧技能练习",
+      "description": "克服恐惧技能：帮助个体精准识别恐惧根源，通过认知重构、系统脱敏等方式削弱恐惧情绪的触发强度，可用于应对公众演讲、高空环境等特定恐惧场景，缓解焦虑困扰，提升心理韧性，使个体在恐惧情境下仍能维持理性行动、推进目标。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_春节抢票",
+      "name": "春节抢票",
+      "display_name": "春节抢票技能练习",
+      "description": "春节抢票技能：针对春运购票高峰场景，提供余票实时监控、智能订单提交、车次席别优选等功能，有效提升火车票抢票成功率，助力用户快速获取春节返乡或返程车票。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_购买地铁票",
+      "name": "购买地铁票",
+      "display_name": "购买地铁票技能练习",
+      "description": "该技能支持在线查询地铁线路、选择上下车站点，快速完成地铁票的选购与支付，省去线下排队流程，为日常通勤、短途出行提供便捷的购票服务。",
+      "atomic_skills": [
+        "as_001",
+        "as_003"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    },
+    {
+      "skill_id": "skill_研究学术论文",
+      "name": "研究学术论文",
+      "display_name": "研究学术论文技能练习",
+      "description": "研究学术论文技能是指精准检索、批判性分析与整合学术文献的能力，可挖掘学科前沿动态、构建研究理论基础、识别领域空白，用于支撑科研立项、学术论文撰写、专业创新及行业决策，助力提升学术产出质量与专业认知深度。",
+      "atomic_skills": [
+        "as_006",
+        "as_007",
+        "as_008"
+      ],
+      "generate_prompt": "你是{target_skill_name}教练，请生成一个适合练习的{target_skill_name}主题或任务，要求：\n场景：{{scene}}，\n难度：{{difficulty}}，\n时长：{{duration}}，\n关键词：{{keyword}}。\n\n只需输出具体的练习主题或任务，无需其他内容。",
+      "evaluate_prompt": "你是{target_skill_name}专家，评估以下{target_skill_name}内容：\n\n{target_skill_name}内容：{{content}}\n\n要求：从内容准确性、结构完整性、表达清晰度、{target_skill_name}专业性等方面进行评估，\n并按以下格式输出：总分(1-10分)|各项得分详情|优点|改进建议。",
+      "enabled": true,
+      "default_params": {
+        "scene": "通用",
+        "difficulty": "中等",
+        "duration": "5分钟",
+        "keyword": ""
+      }
+    }
+  ]
+}

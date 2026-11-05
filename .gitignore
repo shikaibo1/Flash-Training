@@ -1,0 +1,37 @@
+# Secrets
+.env
+.env.*
+!.env.example
+!.env.ai.example
+
+# Dependencies and build products
+node_modules/
+dist/
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+
+# Personal learning data; publish only the reusable skill definitions
+backend/data/*
+!backend/data/atomic_skills.json
+!backend/data/skill_library.json
+!backend/data/README.md
+backend/backend/
+backend/uploads/
+backend/logs/
+*.sqlite*
+*.db
+*.db-*
+
+# Editor settings and machine-specific caches
+.idea/
+.vscode/
+*.local.code-workspace
+*.tsbuildinfo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.test-cache/
+.DS_Store
+Thumbs.db
