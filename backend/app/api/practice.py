@@ -23,7 +23,7 @@ def get_session(session_id: str, user_id: str, svc: Practice) -> Success[Session
 
 @router.post("/v1/practice/submit", response_model=Success[Submission])
 def submit(body: SubmitRequest, svc: Practice) -> Success[Submission]:
-    return Success(data=svc.submit(body.user_id, body.session_id, body.answer))
+    return Success(data=svc.submit(body.user_id, body.session_id, body.answer, body.assistance_used))
 
 
 @router.post("/v1/practice/generate", response_model=ContentResponse)

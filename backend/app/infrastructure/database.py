@@ -4,20 +4,27 @@ import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 SCHEMA = """
 CREATE TABLE users (user_id TEXT PRIMARY KEY, created_at TEXT NOT NULL);
 CREATE TABLE atomic_skills (
     atomic_skill_id TEXT PRIMARY KEY, name TEXT NOT NULL,
-    description TEXT NOT NULL, categories_json TEXT NOT NULL DEFAULT '[]'
+    description TEXT NOT NULL, categories_json TEXT NOT NULL DEFAULT '[]',
+    definition_json TEXT NOT NULL DEFAULT '{}'
 );
 CREATE TABLE skills (
     skill_id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE,
     display_name TEXT NOT NULL, description TEXT NOT NULL,
     generate_prompt TEXT NOT NULL DEFAULT '', evaluate_prompt TEXT NOT NULL DEFAULT '',
     enabled INTEGER NOT NULL DEFAULT 1 CHECK(enabled IN (0,1)),
-    default_params_json TEXT NOT NULL DEFAULT '{}', deleted_at TEXT
+    default_params_json TEXT NOT NULL DEFAULT '{}', deleted_at TEXT,
+    task_json TEXT NOT NULL DEFAULT '{}'
 );
+CREATE TABLE roles (role_id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL);
+CREATE TABLE knowledge_concepts (
+    knowledge_id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL, course TEXT NOT NULL
+);
+CREATE TABLE catalog_metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE skill_atoms (
     skill_id TEXT NOT NULL REFERENCES skills(skill_id),
     atomic_skill_id TEXT NOT NULL REFERENCES atomic_skills(atomic_skill_id),
@@ -28,7 +35,7 @@ CREATE TABLE practice_sessions (
     session_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL REFERENCES users(user_id),
     skill_id TEXT NOT NULL REFERENCES skills(skill_id),
-    content_json TEXT NOT NULL, skill_snapshot_json TEXT NOT NULL,
+    content_json TEXT NOT NULL, skill_snapshot_json TEXT NOT NULL, atom_snapshot_json TEXT NOT NULL,
     params_json TEXT NOT NULL DEFAULT '{}',
     status TEXT NOT NULL CHECK(status IN ('active','completed')),
     started_at TEXT NOT NULL, completed_at TEXT, result_json TEXT,
@@ -52,35 +59,20 @@ CREATE TABLE practice_records (
     provenance TEXT NOT NULL DEFAULT 'live'
 );
 CREATE INDEX records_user_idx ON practice_records(user_id, started_at);
-CREATE TABLE user_atomic_scores (
-    user_id TEXT NOT NULL REFERENCES users(user_id),
-    atomic_skill_id TEXT NOT NULL REFERENCES atomic_skills(atomic_skill_id),
-    score REAL NOT NULL CHECK(score >= 0 AND score <= 10),
-    updated_at TEXT NOT NULL, provenance TEXT NOT NULL,
-    PRIMARY KEY(user_id, atomic_skill_id)
-);
-CREATE TABLE mastery_events (
+CREATE TABLE atom_evidence (
     event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT NOT NULL REFERENCES practice_sessions(session_id),
     user_id TEXT NOT NULL REFERENCES users(user_id),
     atomic_skill_id TEXT NOT NULL REFERENCES atomic_skills(atomic_skill_id),
-    session_id TEXT REFERENCES practice_sessions(session_id),
-    performance REAL NOT NULL CHECK(performance >= 0 AND performance <= 1),
-    mastery REAL NOT NULL CHECK(mastery >= 0 AND mastery <= 1),
-    created_at TEXT NOT NULL, provenance TEXT NOT NULL,
+    context TEXT NOT NULL, mode TEXT NOT NULL CHECK(mode IN ('guided','independent','transfer')),
+    assistance_used INTEGER NOT NULL CHECK(assistance_used IN (0,1)),
+    status TEXT NOT NULL CHECK(status IN ('observed','not_observable')),
+    score REAL CHECK(score >= 0 AND score <= 10),
+    quote TEXT NOT NULL, reason TEXT NOT NULL, next_action TEXT NOT NULL, created_at TEXT NOT NULL,
+    CHECK((status='observed' AND score IS NOT NULL) OR (status='not_observable' AND score IS NULL)),
     UNIQUE(session_id, atomic_skill_id)
 );
-CREATE INDEX mastery_user_atom_idx ON mastery_events(user_id, atomic_skill_id, created_at, event_id);
-CREATE TABLE user_skill_profiles (
-    user_id TEXT NOT NULL REFERENCES users(user_id), skill_key TEXT NOT NULL,
-    payload_json TEXT NOT NULL, PRIMARY KEY(user_id, skill_key)
-);
-CREATE TABLE legacy_imports (
-    source TEXT PRIMARY KEY, sha256 TEXT NOT NULL, payload_json TEXT NOT NULL,
-    imported_at TEXT NOT NULL
-);
-CREATE TABLE migration_reports (
-    migration_key TEXT PRIMARY KEY, report_json TEXT NOT NULL, created_at TEXT NOT NULL
-);
+CREATE INDEX evidence_user_atom_idx ON atom_evidence(user_id, atomic_skill_id, created_at, event_id);
 """
 
 
@@ -104,7 +96,11 @@ class Database:
             version = conn.execute("PRAGMA user_version").fetchone()[0]
             if version > SCHEMA_VERSION:
                 raise RuntimeError("Database schema is newer than this application")
+            if version not in (0, SCHEMA_VERSION):
+                raise RuntimeError("This application requires a fresh schema v2 database; select a new database path. Existing data was not modified.")
             if version == 0:
+                if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' LIMIT 1").fetchone():
+                    raise RuntimeError("The selected database is not an empty schema v2 database; select a new database path.")
                 for statement in SCHEMA.split(";"):
                     if statement.strip():
                         conn.execute(statement)

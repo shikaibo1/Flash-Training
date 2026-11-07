@@ -14,8 +14,7 @@ __pycache__/
 
 # Personal learning data; publish only the reusable skill definitions
 backend/data/*
-!backend/data/atomic_skills.json
-!backend/data/skill_library.json
+!backend/data/career_catalog.json
 !backend/data/README.md
 backend/backend/
 backend/uploads/

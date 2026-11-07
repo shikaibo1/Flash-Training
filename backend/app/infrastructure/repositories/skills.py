@@ -3,6 +3,7 @@ import json
 import sqlite3
 from ...domain.commands import SkillPatch
 from ...domain.models import AtomicSkill, Skill
+from ...domain.catalog import KnowledgeConcept, Role
 from ...errors import AppError
 from ..serialization import dump
 
@@ -20,14 +21,18 @@ class SkillRepository:
     @staticmethod
     def _atom(row: sqlite3.Row) -> AtomicSkill:
         return AtomicSkill(atomic_skill_id=row["atomic_skill_id"], name=row["name"],
-                           description=row["description"], categories=json.loads(row["categories_json"]))
+                           description=row["description"], categories=json.loads(row["categories_json"]),
+                           **json.loads(row["definition_json"]))
 
     def atoms(self) -> list[AtomicSkill]:
         return [self._atom(row) for row in self._conn.execute("SELECT * FROM atomic_skills ORDER BY rowid")]
 
     def add_atom(self, atom: AtomicSkill) -> AtomicSkill:
-        self._conn.execute("INSERT INTO atomic_skills VALUES (?,?,?,?)", (
-            atom.atomic_skill_id, atom.name, atom.description, dump(atom.categories)))
+        definition = atom.model_dump(include={"action", "input_spec", "output_spec", "boundary", "rubric",
+                                             "knowledge_ids", "prerequisite_ids", "contexts", "version"})
+        self._conn.execute("""INSERT INTO atomic_skills
+            (atomic_skill_id,name,description,categories_json,definition_json) VALUES (?,?,?,?,?)""", (
+            atom.atomic_skill_id, atom.name, atom.description, dump(atom.categories), dump(definition)))
         return atom
 
     @staticmethod
@@ -35,7 +40,13 @@ class SkillRepository:
         return Skill(**{key: row[key] for key in (
             "skill_id", "name", "display_name", "description", "generate_prompt", "evaluate_prompt")},
             enabled=bool(row["enabled"]), default_params=json.loads(row["default_params_json"]),
-            atomic_skills=atom_ids)
+            atomic_skills=atom_ids, **json.loads(row["task_json"]))
+
+    def catalog_roles(self) -> list[Role]:
+        return [Role(**dict(row)) for row in self._conn.execute("SELECT * FROM roles ORDER BY rowid")]
+
+    def catalog_knowledge(self) -> list[KnowledgeConcept]:
+        return [KnowledgeConcept(**dict(row)) for row in self._conn.execute("SELECT * FROM knowledge_concepts ORDER BY rowid")]
 
     def get(self, skill_id: str, include_deleted: bool = False) -> Skill:
         row = self._conn.execute("SELECT * FROM skills WHERE skill_id=?", (skill_id,)).fetchone()
@@ -59,10 +70,11 @@ class SkillRepository:
         return self._conn.execute("SELECT 1 FROM skills WHERE name=?", (name,)).fetchone() is not None
 
     def add(self, skill: Skill) -> Skill:
+        task = skill.model_dump(include={"role_id", "context", "task_brief", "deliverable"})
         self._conn.execute("""INSERT INTO skills (skill_id,name,display_name,description,generate_prompt,
-            evaluate_prompt,enabled,default_params_json) VALUES (?,?,?,?,?,?,?,?)""", (
+            evaluate_prompt,enabled,default_params_json,task_json) VALUES (?,?,?,?,?,?,?,?,?)""", (
             skill.skill_id, skill.name, skill.display_name, skill.description, skill.generate_prompt,
-            skill.evaluate_prompt, int(skill.enabled), dump(skill.default_params)))
+            skill.evaluate_prompt, int(skill.enabled), dump(skill.default_params), dump(task)))
         self._set_atoms(skill.skill_id, skill.atomic_skills)
         return self.get(skill.skill_id)
 
@@ -74,7 +86,7 @@ class SkillRepository:
             (skill_id, atom_id, i) for i, atom_id in enumerate(dict.fromkeys(atom_ids))])
 
     def update(self, skill_id: str, changes: SkillPatch) -> Skill:
-        self.get(skill_id)
+        current = self.get(skill_id)
         updates = changes.model_dump(exclude_unset=True)
         # Column names come only from this allowlist.
         for key in ("display_name", "description", "generate_prompt", "evaluate_prompt", "enabled", "default_params"):
@@ -82,6 +94,11 @@ class SkillRepository:
                 column = "default_params_json" if key == "default_params" else key
                 value = dump(updates[key]) if key == "default_params" else updates[key]
                 self._conn.execute(f"UPDATE skills SET {column}=? WHERE skill_id=?", (value, skill_id))
+        task_fields = {"role_id", "context", "task_brief", "deliverable"}
+        if task_fields.intersection(updates):
+            task = current.model_dump(include=task_fields)
+            task.update({key: updates[key] for key in task_fields if key in updates})
+            self._conn.execute("UPDATE skills SET task_json=? WHERE skill_id=?", (dump(task), skill_id))
         if changes.atomic_skills is not None:
             self._set_atoms(skill_id, changes.atomic_skills)
         return self.get(skill_id)

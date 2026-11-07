@@ -2,7 +2,7 @@
 
 ## 1. 填写 `backend/.env.ai`
 
-本次已创建这个文件，并已使用你填写的当前配置通过真实出题和评分测试。以下为配置格式示例，不包含真实密钥：
+从 `.env.ai.example` 复制配置并填写自己的账号信息。此次职业能力重构未调用真实模型，以下示例不包含真实密钥：
 
 ```dotenv
 OPENAI_API_KEY=填写你自己的密钥
@@ -32,7 +32,7 @@ AI_API_STYLE=chat_completions
 
 业务层只需要 `generate_json(task, payload)`，所以更换供应商不必修改数据库或路由。
 
-本次按已安装的 OpenAI Python SDK 接口实现并测试了请求分支和完整多行 JSON 的读取。官方参考页在当前环境返回 403，未将它们当作本次在线核验依据；下面链接便于你接入时核对服务最新要求：
+沿用项目已有的两个 SDK 请求分支。此次未安装依赖或运行验证；下面链接便于你接入时核对服务要求：
 
 - https://platform.openai.com/docs/api-reference/responses/create
 - https://platform.openai.com/docs/api-reference/chat/create
@@ -41,21 +41,23 @@ AI_API_STYLE=chat_completions
 
 `backend/app/application/content.py` 的 `ContentService` 中：
 
-- `generate()`：完整练习题、提示和参考答案。
-- `evaluate()`：0–10 总分、各原子技能分数和有依据的评语。
-- `propose_skill()`：技能说明、提示词配置和原子技能拆分。
-- `optimize()`：针对指定原子技能生成练习建议。
+- `generate()`：根据任务和目标原子生成完整模拟材料、提示和参考答案。
+- `evaluate()`：逐原子取证，检查答案原文引用，再按可观察项等权计算总分。
+- `propose_task()`：为自定义目标组合已有原子，明确拒绝未知 ID 和不匹配情境。
+- `application/evidence.py` 的 `recommendations()`：基于情境证据和先修关系推荐，不调用模型。
 
-结果模型位于 `backend/app/domain/models.py`；技能提案和优化建议的模型在 `application/content.py`。`validated()` 返回校验后的类型对象，评分还检查原子技能 ID 集合是否完整对应。当前使用 JSON 对象输出并在服务端做字段和范围校验。若要改成供应商严格 JSON Schema 模式，应同时核对该模型对 schema 的支持，保留服务端校验。
+结果模型位于 `backend/app/domain/models.py`；任务提案模型在 `application/content.py`。`validated()` 返回校验后的类型对象，评分还检查本次目标原子是否恰好各出现一次、非零分是否有答案引用。当前使用 JSON 对象输出并在服务端做字段和范围校验。
 
 ## 4. 验证
 
-在当前工作区执行 `powershell -ExecutionPolicy Bypass -File ".\outputs\start-flash-training.ps1" -RestartBackend`，然后访问 `http://127.0.0.1:8001/api/health`。
+在 `backend/` 激活已有 Python 环境后执行 `python -m uvicorn api_server:app --host 127.0.0.1 --port 8001`，然后访问 `http://127.0.0.1:8001/api/health`。使用新数据库 `data/flash_training_v2.sqlite3`；已有 `.env.ai` 若设置了旧路径，需先调整。
 
 `ai_configured=true` 仅表示配置项非空，不代表模型接口已经调用成功。再在页面进入一个技能，实际生成题目并提交答案，才完成真实模型联调。
 
-当前服务商返回的模型 ID 是 `gpt-6.1-sol`，已修正原配置中的大小写。该服务商还要求使用 JSON 对象模式时在 `input` 内明确提到 JSON；客户端已补充兼容处理，并通过真实出题、评分和回归测试。
+配置中的模型 ID 由用户账号决定。开发协作使用的子 Agent 模型不自动改变应用运行时模型。真实出题和评分可能产生模型费用，并保存本地练习数据。
 
-未配置时返回 503；密钥/权限问题、限流、调用失败、结果格式错误均明确报错。不会默认给 50/60 分或写入掌握度。日志不输出密钥、完整学生答案或上游错误正文。
+未配置时返回 503；密钥/权限问题、限流、调用失败、结果格式错误均明确报错。失败不会写入成绩或能力证据。日志不输出密钥、完整学生答案或上游错误正文。
 
 模型评分本身仍需使用人工标注样本验证；数据库一致性测试不能代替教学质量评测。
+
+未执行测试，由用户自行验证。

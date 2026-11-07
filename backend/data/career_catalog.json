@@ -1,0 +1,649 @@
+{
+  "version": 2,
+  "roles": [
+    {
+      "role_id": "data_analyst_intern",
+      "name": "数据分析实习生",
+      "description": "整理业务数据、核对指标并提交有依据的分析结论。"
+    },
+    {
+      "role_id": "product_assistant",
+      "name": "产品助理",
+      "description": "整理用户材料、比较方案并形成可追踪的需求说明。"
+    },
+    {
+      "role_id": "research_assistant",
+      "name": "科研助理",
+      "description": "阅读研究材料、抽取证据并限定结论适用范围。"
+    }
+  ],
+  "knowledge": [
+    {
+      "knowledge_id": "k_metric",
+      "name": "指标与口径",
+      "description": "理解分子、分母、时间窗和百分比。",
+      "course": "统计学基础"
+    },
+    {
+      "knowledge_id": "k_quality",
+      "name": "数据质量",
+      "description": "理解缺失、重复、异常和处理记录。",
+      "course": "数据库与数据管理"
+    },
+    {
+      "knowledge_id": "k_comparison",
+      "name": "对照与差异",
+      "description": "区分绝对差、相对变化和可比较条件。",
+      "course": "统计学基础"
+    },
+    {
+      "knowledge_id": "k_evidence",
+      "name": "证据与主张",
+      "description": "区分原文事实、推断与结论。",
+      "course": "学术阅读与写作"
+    },
+    {
+      "knowledge_id": "k_requirements",
+      "name": "需求与验收",
+      "description": "用对象、场景、动作和可检查结果描述需求。",
+      "course": "软件工程导论"
+    },
+    {
+      "knowledge_id": "k_priorities",
+      "name": "优先级与约束",
+      "description": "在收益、成本和限定资源下比较候选项。",
+      "course": "管理学基础"
+    },
+    {
+      "knowledge_id": "k_methods",
+      "name": "研究设计",
+      "description": "理解研究问题、样本、方法与因果推断边界。",
+      "course": "研究方法"
+    },
+    {
+      "knowledge_id": "k_synthesis",
+      "name": "结构化表达",
+      "description": "按问题、依据、结论组织短报告。",
+      "course": "应用写作"
+    },
+    {
+      "knowledge_id": "k_classification",
+      "name": "分类规则",
+      "description": "定义互斥或可多选的类别并处理边界样例。",
+      "course": "逻辑与信息组织"
+    }
+  ],
+  "atoms": [
+    {
+      "atomic_skill_id": "a_extract",
+      "name": "抽取指定字段",
+      "description": "按给定字段从材料摘录信息，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "按给定字段从材料摘录信息",
+      "input_spec": "题面中的记录、访谈或摘要及字段表",
+      "output_spec": "保留来源编号的字段表",
+      "boundary": "不补写材料未给出的值",
+      "rubric": [
+        "字段齐全，缺失明确标注",
+        "值与原文一致",
+        "每条记录保留来源编号"
+      ],
+      "knowledge_ids": [
+        "k_evidence"
+      ],
+      "prerequisite_ids": [],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_quality",
+      "name": "标记数据问题",
+      "description": "识别缺失、重复与明显格式冲突，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "识别缺失、重复与明显格式冲突",
+      "input_spec": "题面中的小型数据表与唯一键规则",
+      "output_spec": "问题清单及对应行号",
+      "boundary": "不擅自删除或修复不确定数据",
+      "rubric": [
+        "问题指向具体行与字段",
+        "按题面规则判断重复或缺失",
+        "不确定项说明原因"
+      ],
+      "knowledge_ids": [
+        "k_quality"
+      ],
+      "prerequisite_ids": [
+        "a_extract"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_metric",
+      "name": "核算一个指标",
+      "description": "按指定口径列式核算指标并比对声明值，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "按指定口径列式核算指标并比对声明值",
+      "input_spec": "完整分子分母、时间窗、精度规则和待核对值",
+      "output_spec": "公式、代入值、计算值、是否一致",
+      "boundary": "不执行代码，不引入题外数据",
+      "rubric": [
+        "使用题面指定分子分母",
+        "列出可复核算式与单位",
+        "按规定精度判断声明值"
+      ],
+      "knowledge_ids": [
+        "k_metric"
+      ],
+      "prerequisite_ids": [
+        "a_extract"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_compare",
+      "name": "计算组间差异",
+      "description": "在相同口径下比较两组数值，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "在相同口径下比较两组数值",
+      "input_spec": "两个同口径指标及比较要求",
+      "output_spec": "差值、方向及比较条件",
+      "boundary": "不同口径时先指出不可直接比较",
+      "rubric": [
+        "比较对象与口径明确",
+        "差值与方向正确",
+        "区分百分点与相对百分比"
+      ],
+      "knowledge_ids": [
+        "k_comparison"
+      ],
+      "prerequisite_ids": [
+        "a_metric"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_claim",
+      "name": "定位结论证据",
+      "description": "把一句结论对应到支持或反驳它的材料，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "把一句结论对应到支持或反驳它的材料",
+      "input_spec": "编号材料及待检验主张",
+      "output_spec": "原文短引、来源编号与支持关系",
+      "boundary": "引用必须来自题面",
+      "rubric": [
+        "引用原文连续片段",
+        "来源编号准确",
+        "说明片段如何支持或限制主张"
+      ],
+      "knowledge_ids": [
+        "k_evidence"
+      ],
+      "prerequisite_ids": [
+        "a_extract"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_classify",
+      "name": "按规则归类",
+      "description": "按给定分类规则为条目分组，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "按给定分类规则为条目分组",
+      "input_spec": "编号条目、类别定义与边界规则",
+      "output_spec": "条目到类别的映射及边界解释",
+      "boundary": "不临时改变类别定义",
+      "rubric": [
+        "每个条目均被处理",
+        "归类符合给定规则",
+        "歧义项给出可追踪理由"
+      ],
+      "knowledge_ids": [
+        "k_classification"
+      ],
+      "prerequisite_ids": [
+        "a_extract"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_need",
+      "name": "改写用户需求",
+      "description": "将用户陈述改写为场景中的目标与障碍，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "将用户陈述改写为场景中的目标与障碍",
+      "input_spec": "编号访谈摘录",
+      "output_spec": "用户、场景、目标、障碍及引用",
+      "boundary": "不把用户提到的方案直接等同需求",
+      "rubric": [
+        "用户与场景明确",
+        "目标和障碍有原文依据",
+        "未提供的信息标注未知"
+      ],
+      "knowledge_ids": [
+        "k_requirements"
+      ],
+      "prerequisite_ids": [
+        "a_claim"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_accept",
+      "name": "写出验收条件",
+      "description": "把需求写成可观察的通过条件，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "把需求写成可观察的通过条件",
+      "input_spec": "明确需求与业务约束",
+      "output_spec": "前置条件、操作与预期结果",
+      "boundary": "不擅自添加需求范围",
+      "rubric": [
+        "条件覆盖指定需求",
+        "预期结果可判断通过或失败",
+        "保留材料中的约束"
+      ],
+      "knowledge_ids": [
+        "k_requirements"
+      ],
+      "prerequisite_ids": [
+        "a_need"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_priority",
+      "name": "按约束排序",
+      "description": "根据给定收益成本及预算选择候选项，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "根据给定收益成本及预算选择候选项",
+      "input_spec": "候选方案、评分规则与资源上限",
+      "output_spec": "排序、入选项与取舍说明",
+      "boundary": "不凭印象补收益或成本",
+      "rubric": [
+        "遵守给定评分规则",
+        "入选项不超过资源限制",
+        "解释至少一个未入选项"
+      ],
+      "knowledge_ids": [
+        "k_priorities"
+      ],
+      "prerequisite_ids": [
+        "a_compare"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_question",
+      "name": "提炼研究问题",
+      "description": "从摘要中提炼研究对象与比较问题，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "从摘要中提炼研究对象与比较问题",
+      "input_spec": "研究摘要或方法片段",
+      "output_spec": "对象、变量或现象、研究问题",
+      "boundary": "不把未研究的问题加入原文",
+      "rubric": [
+        "研究对象准确",
+        "主要变量或现象明确",
+        "问题表述对应原文目的"
+      ],
+      "knowledge_ids": [
+        "k_methods"
+      ],
+      "prerequisite_ids": [
+        "a_extract"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_method",
+      "name": "抽取研究设计",
+      "description": "识别材料的样本、方法和观测结果，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "识别材料的样本、方法和观测结果",
+      "input_spec": "完整的简短研究方法与结果材料",
+      "output_spec": "样本、方法、结果三项表",
+      "boundary": "未报告项标注未报告",
+      "rubric": [
+        "三项字段齐全",
+        "不把作者解释写成观测结果",
+        "保留样本规模与适用条件"
+      ],
+      "knowledge_ids": [
+        "k_methods"
+      ],
+      "prerequisite_ids": [
+        "a_question"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_limit",
+      "name": "限定结论范围",
+      "description": "指出一条结论超出材料的具体位置，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "指出一条结论超出材料的具体位置",
+      "input_spec": "编号证据与待审阅结论",
+      "output_spec": "限制条件、对应证据及收窄后的结论",
+      "boundary": "不把相关关系升级为因果关系",
+      "rubric": [
+        "限制有材料依据",
+        "明确影响哪部分结论",
+        "改写结论保留可支持部分"
+      ],
+      "knowledge_ids": [
+        "k_methods",
+        "k_evidence"
+      ],
+      "prerequisite_ids": [
+        "a_claim",
+        "a_method"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_summary",
+      "name": "写出依据摘要",
+      "description": "用结论、依据和限制组织短摘要，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "用结论、依据和限制组织短摘要",
+      "input_spec": "已给出的编号材料和任务问题",
+      "output_spec": "150字以内的结构化短摘要",
+      "boundary": "不加入题外事实",
+      "rubric": [
+        "回答指定问题",
+        "主要结论附来源编号",
+        "保留关键限制条件"
+      ],
+      "knowledge_ids": [
+        "k_synthesis",
+        "k_evidence"
+      ],
+      "prerequisite_ids": [
+        "a_claim"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_next",
+      "name": "提出可执行下一步",
+      "description": "针对一个已定位问题提出验证动作，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "针对一个已定位问题提出验证动作",
+      "input_spec": "问题、现有证据与资源约束",
+      "output_spec": "动作、需要的信息及完成判据",
+      "boundary": "建议必须在题面资源范围内",
+      "rubric": [
+        "动作对应指定问题",
+        "说明需补充的信息",
+        "完成判据可观察"
+      ],
+      "knowledge_ids": [
+        "k_requirements",
+        "k_synthesis"
+      ],
+      "prerequisite_ids": [
+        "a_claim"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    },
+    {
+      "atomic_skill_id": "a_trace",
+      "name": "检查交付可追踪性",
+      "description": "核对交付中的主张是否能追溯材料，交付可检查的文字结果。",
+      "categories": [
+        "职业行动"
+      ],
+      "action": "核对交付中的主张是否能追溯材料",
+      "input_spec": "编号材料与一份短报告",
+      "output_spec": "无依据主张清单及最小修订",
+      "boundary": "检查支持关系而非润色文风",
+      "rubric": [
+        "逐项检查指定主张",
+        "缺口定位到报告语句",
+        "修订不新增无依据事实"
+      ],
+      "knowledge_ids": [
+        "k_evidence"
+      ],
+      "prerequisite_ids": [
+        "a_claim"
+      ],
+      "contexts": [
+        "电商运营",
+        "产品调研",
+        "科研阅读"
+      ],
+      "version": 1
+    }
+  ],
+  "tasks": [
+    {
+      "skill_id": "t_conversion",
+      "name": "核对活动转化简报",
+      "display_name": "核对活动转化简报",
+      "description": "数据分析实习生的5分钟文字任务：核对活动转化简报。",
+      "atomic_skills": [
+        "a_extract",
+        "a_metric",
+        "a_compare"
+      ],
+      "generate_prompt": "为两组活动提供各4行以内的访问与成交数据、统一时间窗、一个故意算错的转化率声明，要求保留两位小数并比较百分点差。所有必要材料、编号、规则与数值必须完整放入题面；无需外部文件、联网或真实企业最新信息。按以下交付要求出题：一张口径与算式表，加两句差异结论。只考核列出的行动原子，不要求运行程序。",
+      "evaluate_prompt": "仅依据题面、用户文字提交及本任务原子量规评估。逐原子给出与用户答案逐字一致的证据短引；缺失证据须明确标注，不编造引用。核算题面算式与指标，区分计算错误、口径错误和证据不足；不执行用户代码，不用总分推断其他场景表现。",
+      "enabled": true,
+      "default_params": {
+        "difficulty": "入门",
+        "duration": "5分钟"
+      },
+      "role_id": "data_analyst_intern",
+      "context": "电商运营",
+      "task_brief": "为两组活动提供各4行以内的访问与成交数据、统一时间窗、一个故意算错的转化率声明，要求保留两位小数并比较百分点差。",
+      "deliverable": "一张口径与算式表，加两句差异结论。"
+    },
+    {
+      "skill_id": "t_data_review",
+      "name": "审阅运营数据结论",
+      "display_name": "审阅运营数据结论",
+      "description": "数据分析实习生的5分钟文字任务：审阅运营数据结论。",
+      "atomic_skills": [
+        "a_quality",
+        "a_claim",
+        "a_trace"
+      ],
+      "generate_prompt": "提供6行含唯一键的订单数据，其中包含缺失与重复；再提供三条待审阅简报结论，其中至少一条无数据支持。所有必要材料、编号、规则与数值必须完整放入题面；无需外部文件、联网或真实企业最新信息。按以下交付要求出题：问题行清单、结论证据对应表与最小修订。只考核列出的行动原子，不要求运行程序。",
+      "evaluate_prompt": "仅依据题面、用户文字提交及本任务原子量规评估。逐原子给出与用户答案逐字一致的证据短引；缺失证据须明确标注，不编造引用。核算题面算式与指标，区分计算错误、口径错误和证据不足；不执行用户代码，不用总分推断其他场景表现。",
+      "enabled": true,
+      "default_params": {
+        "difficulty": "进阶",
+        "duration": "5分钟"
+      },
+      "role_id": "data_analyst_intern",
+      "context": "电商运营",
+      "task_brief": "提供6行含唯一键的订单数据，其中包含缺失与重复；再提供三条待审阅简报结论，其中至少一条无数据支持。",
+      "deliverable": "问题行清单、结论证据对应表与最小修订。"
+    },
+    {
+      "skill_id": "t_interview",
+      "name": "把访谈转成可验收需求",
+      "display_name": "把访谈转成可验收需求",
+      "description": "产品助理的5分钟文字任务：把访谈转成可验收需求。",
+      "atomic_skills": [
+        "a_classify",
+        "a_need",
+        "a_accept"
+      ],
+      "generate_prompt": "提供4条带编号的用户访谈摘录、两个类别的明确规则、一个产品范围限制，要求归类并选一项需求编写验收条件。所有必要材料、编号、规则与数值必须完整放入题面；无需外部文件、联网或真实企业最新信息。按以下交付要求出题：分类表、一条需求和两条验收条件。只考核列出的行动原子，不要求运行程序。",
+      "evaluate_prompt": "仅依据题面、用户文字提交及本任务原子量规评估。逐原子给出与用户答案逐字一致的证据短引；缺失证据须明确标注，不编造引用。核算题面算式与指标，区分计算错误、口径错误和证据不足；不执行用户代码，不用总分推断其他场景表现。",
+      "enabled": true,
+      "default_params": {
+        "difficulty": "入门",
+        "duration": "5分钟"
+      },
+      "role_id": "product_assistant",
+      "context": "产品调研",
+      "task_brief": "提供4条带编号的用户访谈摘录、两个类别的明确规则、一个产品范围限制，要求归类并选一项需求编写验收条件。",
+      "deliverable": "分类表、一条需求和两条验收条件。"
+    },
+    {
+      "skill_id": "t_priority",
+      "name": "比较迭代候选方案",
+      "display_name": "比较迭代候选方案",
+      "description": "产品助理的5分钟文字任务：比较迭代候选方案。",
+      "atomic_skills": [
+        "a_metric",
+        "a_priority",
+        "a_next"
+      ],
+      "generate_prompt": "提供3个候选方案的收益分、成本与预算；给定收益除以成本的评分公式、预算约束和并列时的取舍规则，不要求外部调研。所有必要材料、编号、规则与数值必须完整放入题面；无需外部文件、联网或真实企业最新信息。按以下交付要求出题：评分算式、排序与预算内选择、一个验证动作。只考核列出的行动原子，不要求运行程序。",
+      "evaluate_prompt": "仅依据题面、用户文字提交及本任务原子量规评估。逐原子给出与用户答案逐字一致的证据短引；缺失证据须明确标注，不编造引用。核算题面算式与指标，区分计算错误、口径错误和证据不足；不执行用户代码，不用总分推断其他场景表现。",
+      "enabled": true,
+      "default_params": {
+        "difficulty": "进阶",
+        "duration": "5分钟"
+      },
+      "role_id": "product_assistant",
+      "context": "产品调研",
+      "task_brief": "提供3个候选方案的收益分、成本与预算；给定收益除以成本的评分公式、预算约束和并列时的取舍规则，不要求外部调研。",
+      "deliverable": "评分算式、排序与预算内选择、一个验证动作。"
+    },
+    {
+      "skill_id": "t_paper",
+      "name": "拆解一段研究摘要",
+      "display_name": "拆解一段研究摘要",
+      "description": "科研助理的5分钟文字任务：拆解一段研究摘要。",
+      "atomic_skills": [
+        "a_question",
+        "a_method",
+        "a_claim"
+      ],
+      "generate_prompt": "撰写一段明确标注为虚构教学材料的研究摘要，包含研究目的、样本规模、研究方法与结果，并给出一条待检验主张。所有必要材料、编号、规则与数值必须完整放入题面；无需外部文件、联网或真实企业最新信息。按以下交付要求出题：研究问题、设计抽取表与带引用的主张判断。只考核列出的行动原子，不要求运行程序。",
+      "evaluate_prompt": "仅依据题面、用户文字提交及本任务原子量规评估。逐原子给出与用户答案逐字一致的证据短引；缺失证据须明确标注，不编造引用。核算题面算式与指标，区分计算错误、口径错误和证据不足；不执行用户代码，不用总分推断其他场景表现。",
+      "enabled": true,
+      "default_params": {
+        "difficulty": "入门",
+        "duration": "5分钟"
+      },
+      "role_id": "research_assistant",
+      "context": "科研阅读",
+      "task_brief": "撰写一段明确标注为虚构教学材料的研究摘要，包含研究目的、样本规模、研究方法与结果，并给出一条待检验主张。",
+      "deliverable": "研究问题、设计抽取表与带引用的主张判断。"
+    },
+    {
+      "skill_id": "t_research_review",
+      "name": "收窄研究结论并写摘要",
+      "display_name": "收窄研究结论并写摘要",
+      "description": "科研助理的5分钟文字任务：收窄研究结论并写摘要。",
+      "atomic_skills": [
+        "a_claim",
+        "a_limit",
+        "a_summary"
+      ],
+      "generate_prompt": "提供两段带编号的虚构研究材料，明确样本、观测方法与局限；附一条过度泛化或混淆因果的结论，要求审阅后写摘要。所有必要材料、编号、规则与数值必须完整放入题面；无需外部文件、联网或真实企业最新信息。按以下交付要求出题：证据短引、结论修订与150字内摘要。只考核列出的行动原子，不要求运行程序。",
+      "evaluate_prompt": "仅依据题面、用户文字提交及本任务原子量规评估。逐原子给出与用户答案逐字一致的证据短引；缺失证据须明确标注，不编造引用。核算题面算式与指标，区分计算错误、口径错误和证据不足；不执行用户代码，不用总分推断其他场景表现。",
+      "enabled": true,
+      "default_params": {
+        "difficulty": "进阶",
+        "duration": "5分钟"
+      },
+      "role_id": "research_assistant",
+      "context": "科研阅读",
+      "task_brief": "提供两段带编号的虚构研究材料，明确样本、观测方法与局限；附一条过度泛化或混淆因果的结论，要求审阅后写摘要。",
+      "deliverable": "证据短引、结论修订与150字内摘要。"
+    }
+  ]
+}

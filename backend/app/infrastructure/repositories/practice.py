@@ -14,10 +14,11 @@ class PracticeRepository:
     @staticmethod
     def _session(row: sqlite3.Row) -> PracticeSession:
         result = json.loads(row["result_json"] or "null")
-        if result is not None and row["provenance"] == "live":
+        if result is not None:
             result = Evaluation.model_validate(result)
         return PracticeSession(session_id=row["session_id"], user_id=row["user_id"], skill_id=row["skill_id"],
             content=json.loads(row["content_json"]), skill_snapshot=json.loads(row["skill_snapshot_json"]),
+            atom_snapshot=json.loads(row["atom_snapshot_json"]),
             params=json.loads(row["params_json"]), status=row["status"], started_at=row["started_at"],
             completed_at=row["completed_at"], result=result, provenance=row["provenance"])
 
@@ -30,9 +31,10 @@ class PracticeRepository:
 
     def add(self, session: PracticeSession) -> None:
         self._conn.execute("""INSERT INTO practice_sessions
-            (session_id,user_id,skill_id,content_json,skill_snapshot_json,params_json,status,started_at)
-            VALUES (?,?,?,?,?,?,?,?)""", (session.session_id, session.user_id, session.skill_id,
-            dump(session.content), dump(session.skill_snapshot), dump(session.params), session.status, session.started_at))
+            (session_id,user_id,skill_id,content_json,skill_snapshot_json,atom_snapshot_json,params_json,status,started_at)
+            VALUES (?,?,?,?,?,?,?,?,?)""", (session.session_id, session.user_id, session.skill_id,
+            dump(session.content), dump(session.skill_snapshot), dump([a.model_dump(mode="json") for a in session.atom_snapshot]),
+            dump(session.params), session.status, session.started_at))
 
     def complete(self, session_id: str, answer: str, result: Evaluation, stamp: str) -> None:
         self._conn.execute("INSERT INTO practice_attempts VALUES (?,?,?,?,?)",
@@ -60,7 +62,7 @@ class PracticeRepository:
         for row in self._conn.execute("""SELECT * FROM practice_records WHERE user_id=? AND deleted_at IS NULL
             ORDER BY julianday(started_at) DESC,rowid DESC""", (user_id,)):
             payload = json.loads(row["payload_json"])
-            # Indexed columns remain canonical, including when a legacy payload is incomplete.
+            # Indexed columns remain canonical for list and replay responses.
             payload.update(record_id=row["record_id"], user_id=row["user_id"], skill_id=row["skill_id"],
                            session_id=row["session_id"], score=row["score"], start_time=row["started_at"],
                            end_time=row["ended_at"], provenance=row["provenance"])
@@ -84,5 +86,5 @@ class PracticeRepository:
             values.append(SessionHistory(session_id=session.session_id, user_id=session.user_id,
                 skill_id=session.skill_id, content=session.content, question=session.content.title,
                 status=session.status, start_time=session.started_at, end_time=session.completed_at,
-                final_result=session.result))
+                final_result=session.result, mode=session.params["mode"]))
         return values

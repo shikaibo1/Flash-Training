@@ -1,10 +1,9 @@
 from __future__ import annotations
 from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-from .models import JsonObject, Score10
+from .models import JsonObject
 
 Identifier = Annotated[str, Field(min_length=1, max_length=200)]
-Performance = Annotated[float, Field(ge=0, le=1, allow_inf_nan=False)]
 FeedbackText = Annotated[str, Field(min_length=1, max_length=5000)]
 
 
@@ -25,6 +24,7 @@ class SubmitRequest(RequestModel):
     user_id: Identifier
     session_id: Identifier
     answer: str = Field(min_length=1, max_length=50000)
+    assistance_used: bool = Field(default=False, strict=True)
 
 
 class EvaluateRequest(GenerateRequest):
@@ -38,8 +38,12 @@ class SkillCreate(RequestModel):
     description: str = Field(min_length=1, max_length=10000)
     generate_prompt: str = Field(default="", max_length=20000)
     evaluate_prompt: str = Field(default="", max_length=20000)
-    atomic_skills: list[Identifier] = Field(default_factory=list, max_length=50)
+    atomic_skills: list[Identifier] = Field(min_length=1, max_length=10)
     default_params: JsonObject = Field(default_factory=dict)
+    role_id: str = ""
+    context: str = Field(default="通用", min_length=1, max_length=200)
+    task_brief: str = Field(min_length=1, max_length=10000)
+    deliverable: str = Field(min_length=1, max_length=4000)
 
 
 class SkillPatch(RequestModel):
@@ -48,11 +52,15 @@ class SkillPatch(RequestModel):
     generate_prompt: str | None = Field(default=None, max_length=20000)
     evaluate_prompt: str | None = Field(default=None, max_length=20000)
     enabled: bool | None = None
-    atomic_skills: list[Identifier] | None = Field(default=None, max_length=50)
+    atomic_skills: list[Identifier] | None = Field(default=None, min_length=1, max_length=10)
     default_params: JsonObject | None = None
+    role_id: str | None = None
+    context: str | None = Field(default=None, min_length=1, max_length=200)
+    task_brief: str | None = Field(default=None, min_length=1, max_length=10000)
+    deliverable: str | None = Field(default=None, min_length=1, max_length=4000)
 
     @field_validator("display_name", "description", "generate_prompt", "evaluate_prompt",
-                     "enabled", "atomic_skills", "default_params")
+                     "enabled", "atomic_skills", "default_params", "role_id", "context", "task_brief", "deliverable")
     @classmethod
     def no_explicit_null(cls, value):
         if value is None:
@@ -64,26 +72,15 @@ class AtomicCreate(RequestModel):
     name: str = Field(min_length=1, max_length=200)
     description: str = Field(min_length=1, max_length=10000)
     categories: list[str] = Field(default_factory=list, max_length=50)
+    action: str = Field(min_length=1, max_length=2000)
+    input_spec: str = Field(min_length=1, max_length=4000)
+    output_spec: str = Field(min_length=1, max_length=4000)
+    boundary: str = Field(min_length=1, max_length=4000)
+    rubric: list[FeedbackText] = Field(min_length=1, max_length=10)
+    knowledge_ids: list[Identifier] = Field(default_factory=list, max_length=30)
+    prerequisite_ids: list[Identifier] = Field(default_factory=list, max_length=20)
+    contexts: list[Identifier] = Field(min_length=1, max_length=20)
 
 
 class CustomSkillRequest(RequestModel):
     skill_name: str = Field(min_length=1, max_length=200)
-
-
-class MasteryRequest(RequestModel):
-    user_id: Identifier
-    atomic_skill_id: Identifier
-    performance: Performance
-    timestamp: str | None = None
-
-
-class AtomicScoreRequest(RequestModel):
-    user_id: Identifier
-    atomic_skill_id: Identifier
-    score: Score10
-
-
-class OptimizeRequest(RequestModel):
-    user_id: Identifier
-    atomic_skill_ids: list[Identifier] = Field(min_length=1, max_length=50)
-    optimization_goal: str = Field(default="提升技能", min_length=1, max_length=2000)

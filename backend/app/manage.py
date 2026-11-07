@@ -4,14 +4,14 @@ import json
 import sqlite3
 from pathlib import Path
 from .infrastructure.database import Database
-from .infrastructure.legacy_import import migrate_legacy
+from .infrastructure.catalog_seed import seed_catalog
 from .settings import Settings
 
 
 def main():
     parser = argparse.ArgumentParser(description="Flash Training SQLite management")
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("migrate", help="Initialize schema and import legacy JSON once")
+    commands.add_parser("migrate", help="Initialize v2 schema and seed the career catalog once")
     commands.add_parser("inspect", help="Show schema version and row counts")
     backup = commands.add_parser("backup", help="Create a consistent SQLite backup (also works while server runs)")
     backup.add_argument("destination", type=Path)
@@ -20,7 +20,8 @@ def main():
     db = Database(settings.database_path)
     if args.command == "migrate":
         db.initialize()
-        print(json.dumps(migrate_legacy(db, settings.legacy_dir), ensure_ascii=False, indent=2))
+        seed_catalog(db, settings.catalog_path)
+        print("Career catalog v2 is ready.")
         return
     if not db.path.exists():
         parser.error("Database does not exist. Run migrate first.")

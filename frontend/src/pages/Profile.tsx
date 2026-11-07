@@ -1,4 +1,4 @@
-import { User, Settings, Award, Clock, Calendar, BarChart2, Trash2 } from 'lucide-react';
+import { Award, Clock, Trash2 } from 'lucide-react';
 import StreakBadge from '../components/StreakBadge';
 import { useEffect, useState } from 'react';
 import { practiceApi } from '../lib/api';
@@ -70,9 +70,7 @@ const Profile = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">个人中心</h1>
-        <button className="p-2 text-muted-foreground hover:bg-secondary rounded-lg">
-          <Settings size={20} />
-        </button>
+        <Link className="text-primary" to="/learning-curve">查看能力证据</Link>
       </div>
 
       {/* User Info Card */}

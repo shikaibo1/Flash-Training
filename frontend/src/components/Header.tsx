@@ -19,15 +19,17 @@ const Header = () => {
           <span className="text-xl font-bold tracking-tight">闪练 <span className="text-primary font-normal">FlashTrain</span></span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-2">
+        <nav className="hidden xl:flex items-center gap-2">
           <Link to="/" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/')}`}>
             <Home size={18} />
             <span>首页</span>
           </Link>
           <Link to="/skills" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/skills')}`}>
             <BookOpen size={18} />
-            <span>技能库</span>
+            <span>任务库</span>
           </Link>
+          <Link to="/graph" className={`px-4 py-2 rounded-lg text-sm ${isActive('/graph')}`}>能力图谱</Link>
+          <Link to="/learning-curve" className={`px-4 py-2 rounded-lg text-sm ${isActive('/learning-curve')}`}>能力证据</Link>
           <Link to="/history" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive('/history')}`}>
             <BarChart size={18} />
             <span>练习记录</span>
@@ -48,9 +50,11 @@ const Header = () => {
           </div>
         </div>
       </div>
-      <nav aria-label="移动端导航" className="flex md:hidden items-center justify-between gap-2 mt-4 text-sm">
+      <nav aria-label="移动端导航" className="flex xl:hidden items-center flex-wrap gap-2 mt-4 text-sm">
         <Link to="/" className={`px-3 py-2 rounded-lg ${isActive('/')}`}>首页</Link>
-        <Link to="/skills" className={`px-3 py-2 rounded-lg ${isActive('/skills')}`}>技能库</Link>
+        <Link to="/skills" className={`px-3 py-2 rounded-lg ${isActive('/skills')}`}>任务库</Link>
+        <Link to="/graph" className={`px-3 py-2 rounded-lg ${isActive('/graph')}`}>图谱</Link>
+        <Link to="/learning-curve" className={`px-3 py-2 rounded-lg ${isActive('/learning-curve')}`}>证据</Link>
         <Link to="/history" className={`px-3 py-2 rounded-lg ${isActive('/history')}`}>记录</Link>
         <Link to="/profile" className={`px-3 py-2 rounded-lg ${isActive('/profile')}`}>我的</Link>
       </nav>

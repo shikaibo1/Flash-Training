@@ -6,13 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .settings import Settings
 from .infrastructure.database import Database
-from .infrastructure.legacy_import import migrate_legacy
+from .infrastructure.catalog_seed import seed_catalog
 from .infrastructure.unit_of_work import SQLiteUnitOfWorkFactory
 from .infrastructure.ai import OpenAIJSONClient
 from .bootstrap import build_services
 from .api.responses import ErrorResponse, HealthResponse
 from .errors import AppError
-from .api import skills, practice, progress
+from .api import skills, practice, progress, graph, evidence
 
 
 def create_app(settings=None, ai=None):
@@ -22,13 +22,13 @@ def create_app(settings=None, ai=None):
     @asynccontextmanager
     async def lifespan(app):
         database.initialize()
-        app.state.migration_report = migrate_legacy(database, settings.legacy_dir)
+        seed_catalog(database, settings.catalog_path)
         app.state.ai = ai or OpenAIJSONClient(settings)
         app.state.services = build_services(SQLiteUnitOfWorkFactory(database), app.state.ai)
         yield
 
     errors = {status: {"model": ErrorResponse} for status in (404, 409, 410, 502, 503)}
-    app = FastAPI(title="Flash Training API", version="2.1.0", lifespan=lifespan, responses=errors)
+    app = FastAPI(title="Flash Training Career Lab", version="3.0.0", lifespan=lifespan, responses=errors)
     app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins),
                        allow_credentials=False, allow_methods=["GET", "POST", "PATCH", "DELETE"],
                        allow_headers=["Content-Type"])
@@ -59,4 +59,6 @@ def create_app(settings=None, ai=None):
     app.include_router(skills.router)
     app.include_router(practice.router)
     app.include_router(progress.router)
+    app.include_router(graph.router)
+    app.include_router(evidence.router)
     return app

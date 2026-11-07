@@ -26,11 +26,11 @@ const FeedbackPanel = ({ score, strengths, improvements, aiComment, dimensions =
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold flex items-center gap-2">
           <TrendingUp className="text-primary" />
-          AI 分析报告
+          本次交付物评估
         </h3>
         <div className="flex flex-col items-end">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">综合评分</span>
+            <span className="text-sm text-muted-foreground">本次任务评分</span>
             <span className="text-3xl font-bold text-primary">{score}</span>
             <span className="text-sm text-muted-foreground">/ 100</span>
           </div>
@@ -89,7 +89,7 @@ const FeedbackPanel = ({ score, strengths, improvements, aiComment, dimensions =
                 </li>
               ))
             ) : (
-              <li className="text-sm text-muted-foreground">暂无亮点，继续努力！</li>
+              <li className="text-sm text-muted-foreground">本次未记录亮点。</li>
             )}
           </ul>
         </div>
@@ -106,7 +106,7 @@ const FeedbackPanel = ({ score, strengths, improvements, aiComment, dimensions =
                 </li>
               ))
             ) : (
-              <li className="text-sm text-muted-foreground">表现优秀，继续保持！</li>
+              <li className="text-sm text-muted-foreground">本次未记录改进建议。</li>
             )}
           </ul>
         </div>

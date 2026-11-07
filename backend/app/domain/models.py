@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Annotated, Literal
-from pydantic import BaseModel, ConfigDict, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 JsonObject = dict[str, JsonValue]
 Score10 = Annotated[float, Field(ge=0, le=10, allow_inf_nan=False, strict=True)]
@@ -16,6 +16,15 @@ class AtomicSkill(Model):
     name: str
     description: str
     categories: list[str] = Field(default_factory=list)
+    action: str = Field(min_length=1, max_length=2000)
+    input_spec: str = Field(min_length=1, max_length=4000)
+    output_spec: str = Field(min_length=1, max_length=4000)
+    boundary: str = Field(min_length=1, max_length=4000)
+    rubric: list[FeedbackText] = Field(min_length=1, max_length=10)
+    knowledge_ids: list[str] = Field(default_factory=list)
+    prerequisite_ids: list[str] = Field(default_factory=list)
+    contexts: list[str] = Field(min_length=1, max_length=20)
+    version: int = Field(default=1, ge=1)
 
 
 class Skill(Model):
@@ -28,26 +37,86 @@ class Skill(Model):
     enabled: bool = True
     default_params: JsonObject = Field(default_factory=dict)
     atomic_skills: list[str] = Field(default_factory=list)
+    role_id: str = ""
+    context: str = Field(default="通用", min_length=1, max_length=200)
+    task_brief: str = ""
+    deliverable: str = ""
 
 
-class StoredContent(BaseModel):
-    """Historical snapshots can omit fields; only newly generated content is strict."""
-    model_config = ConfigDict(extra="allow", frozen=True)
-    title: str = ""
-    description: str = ""
-    hint: str = ""
-    example_answer: str = ""
-    category: str = "通用"
-    difficulty: str | int | float = "入门"
+class AgentStep(Model):
+    agent: str
+    method: Literal["model", "rule"]
+    summary: str
 
 
-class PracticeContent(StoredContent):
+class AtomEvidence(Model):
+    atomic_skill_id: str
+    status: Literal["observed", "not_observable"]
+    score: Score10 | None = None
+    quote: str = Field(default="", max_length=10000)
+    reason: FeedbackText
+    next_action: FeedbackText
+
+    @model_validator(mode="after")
+    def consistent_score(self):
+        if (self.status == "observed") != (self.score is not None):
+            raise ValueError("Observed evidence requires a score; unobservable evidence must have no score")
+        return self
+
+
+class EvidenceRecord(AtomEvidence):
+    session_id: str
+    context: str
+    mode: Literal["guided", "independent", "transfer"]
+    assistance_used: bool
+    created_at: str
+
+
+class ContextEvidence(Model):
+    context: str
+    status: Literal["unmeasured", "developing", "assisted", "independent"]
+    evidence_count: int = 0
+    independent_count: int = 0
+    last_score: Score10 | None = None
+    last_practice_time: str | None = None
+
+
+class AtomicEvidenceSummary(Model):
+    atomic_skill_id: str
+    name: str
+    contexts: list[ContextEvidence]
+    transfer_observed: bool = False
+
+
+class EvidenceDashboard(Model):
+    atomic_skills: list[AtomicEvidenceSummary]
+    recent_evidence: list[EvidenceRecord]
+
+
+class LearningRecommendation(Model):
+    skill_id: str
+    title: str
+    context: str
+    reason: str
+    target_atomic_ids: list[str]
+
+
+class LearningRecommendations(Model):
+    recommendations: list[LearningRecommendation]
+    agent_trace: list[AgentStep] = Field(default_factory=list)
+
+
+class PracticeContent(Model):
     model_config = ConfigDict(extra="ignore", frozen=True, str_strip_whitespace=True)
     title: str = Field(min_length=1, max_length=500)
     description: str = Field(min_length=1, max_length=20000)
     hint: str = Field(default="", max_length=10000)
-    example_answer: str = Field(min_length=1, max_length=30000)
+    example_answer: str = Field(default="", max_length=30000)
+    category: str = "通用"
     difficulty: str = "入门"
+    materials: str = Field(min_length=1, max_length=30000)
+    target_atomic_ids: list[str] = Field(min_length=1, max_length=10)
+    agent_trace: list[AgentStep] = Field(default_factory=list)
 
 
 class Evaluation(Model):
@@ -57,26 +126,27 @@ class Evaluation(Model):
     improvements: list[FeedbackText] = Field(min_length=1, max_length=20)
     aiComment: str = Field(min_length=1, max_length=10000)
     atomic_skill_scores: dict[str, Score10] = Field(default_factory=dict)
+    evidence: list[AtomEvidence] = Field(min_length=1, max_length=50)
+    agent_trace: list[AgentStep] = Field(default_factory=list)
 
 
 class PracticeSession(Model):
     session_id: str
     user_id: str
     skill_id: str
-    content: StoredContent
+    content: PracticeContent
     skill_snapshot: Skill
+    atom_snapshot: list[AtomicSkill]
     params: JsonObject = Field(default_factory=dict)
     status: Literal["active", "completed"] = "active"
     started_at: str
     completed_at: str | None = None
-    # Unstructured values are limited to historical evaluation snapshots.
-    result: Evaluation | JsonObject | None = None
+    result: Evaluation | None = None
     provenance: str = "live"
 
 
-class PracticeRecord(BaseModel):
-    """Canonical columns plus optional historical payload fields; extras are retained."""
-    model_config = ConfigDict(extra="allow", frozen=True)
+class PracticeRecord(Model):
+    """Replay snapshot of the task, answer and contextual evidence."""
     record_id: str
     user_id: str
     skill_id: str
@@ -90,7 +160,9 @@ class PracticeRecord(BaseModel):
     hint: str = ""
     example_answer: str = ""
     category: str = ""
-    difficulty: str | int | float = ""
+    difficulty: str = ""
+    materials: str = ""
+    target_atomic_ids: list[str] = Field(default_factory=list)
     input_type: str = "text"
     transcript: str = ""
     strengths: list[str] = Field(default_factory=list)
@@ -99,23 +171,16 @@ class PracticeRecord(BaseModel):
     atomic_skill_scores: dict[str, float] | None = None
     atomic_skill_names: dict[str, str] | None = None
     provenance: str = "live"
+    evidence: list[AtomEvidence] = Field(default_factory=list)
+    agent_trace: list[AgentStep] = Field(default_factory=list)
+    mode: str = "guided"
+    context: str = "通用"
+    assistance_used: bool = False
 
 
 class AtomScore(AtomicSkill):
-    score: Score10 = 0.0
-    current_score: Score10 = 0.0
-
-
-class AtomMastery(AtomicSkill):
-    mastery: float = Field(ge=0, le=1)
-    last_practice_time: str | None = None
-    practice_count: int = Field(default=0, ge=0)
-
-
-class MasteryEvent(Model):
-    timestamp: str
-    performance: float = Field(ge=0, le=1)
-    mastery: float = Field(ge=0, le=1)
+    score: Score10 | None = None
+    current_score: Score10 | None = None
 
 
 class SessionStarted(Model):
@@ -126,11 +191,14 @@ class SessionStarted(Model):
     start_time: str
     status: Literal["active"] = "active"
     atomic_skill_names: dict[str, str]
+    mode: Literal["guided", "independent", "transfer"]
+    atom_snapshot: list[AtomicSkill]
+    agent_trace: list[AgentStep]
 
 
 class Submission(Model):
     session_id: str
-    evaluation_result: Evaluation | JsonObject
+    evaluation_result: Evaluation
     record_id: str | None
     status: Literal["completed"] = "completed"
 
@@ -139,24 +207,28 @@ class SessionDetails(Model):
     session_id: str
     skill_id: str
     status: Literal["active", "completed"]
-    content: StoredContent
+    content: PracticeContent
     start_time: str
     atomic_skill_names: dict[str, str]
-    evaluation_result: Evaluation | JsonObject | None = None
+    evaluation_result: Evaluation | None = None
     record_id: str | None = None
     answer: str | None = None
+    mode: Literal["guided", "independent", "transfer"]
+    atom_snapshot: list[AtomicSkill]
+    agent_trace: list[AgentStep]
 
 
 class SessionHistory(Model):
     session_id: str
     user_id: str
     skill_id: str
-    content: StoredContent
+    content: PracticeContent
     question: str
     status: Literal["active", "completed"]
     start_time: str
     end_time: str | None
-    final_result: Evaluation | JsonObject | None
+    final_result: Evaluation | None
+    mode: Literal["guided", "independent", "transfer"]
 
 
 class SkillStatistics(Model):
@@ -169,7 +241,6 @@ class SkillStatistics(Model):
 class UserProfile(Model):
     user_id: str
     skills: dict[str, SkillStatistics]
-    legacy_profiles: dict[str, JsonValue]
     score_scale: Literal["0-100"] = "0-100"
 
 
@@ -181,64 +252,7 @@ class SkillProgress(Model):
     score_scale: Literal["0-100"] = "0-100"
 
 
-class Recommendation(Skill):
-    mastery: float
-    reason: str = "优先巩固掌握度较低的技能"
-
-
-class UserScores(Model):
-    user_id: str
-    atomic_skills: list[AtomScore]
-
-
-class UserMastery(Model):
-    user_id: str
-    atomic_skills: list[AtomMastery]
-
-
 class SkillMapping(Model):
     skill_id: str
     skill_name: str
     atomic_skills: list[AtomScore]
-
-
-class ScoreValue(Model):
-    user_id: str
-    atomic_skill_id: str
-    score: Score10
-
-
-class ManualScore(ScoreValue):
-    source: Literal["manual"] = "manual"
-    message: str = "自评已记录，不计入 AI 评估或掌握度"
-
-
-class MasteryUpdated(Model):
-    atomic_skill_id: str
-    new_mastery: float
-    source: Literal["manual"] = "manual"
-
-
-class Prediction(Model):
-    atomic_skill_id: str
-    predicted_performance: float
-    method: Literal["exponential_moving_average"] = "exponential_moving_average"
-    is_calibrated_prediction: Literal[False] = False
-
-
-class LearningCurve(Model):
-    atomic_skill_id: str
-    learning_curve: list[MasteryEvent]
-    days: int
-
-
-class Recommendations(Model):
-    recommendations: list[Recommendation]
-    top_n: int
-
-
-class Optimization(Model):
-    user_id: str
-    targeted_skills: list[AtomScore]
-    optimization_advice: str
-    optimization_goal: str

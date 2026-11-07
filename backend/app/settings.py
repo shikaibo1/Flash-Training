@@ -9,8 +9,8 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 @dataclass(frozen=True)
 class Settings:
-    database_path: Path = BACKEND_DIR / "data" / "flash_training.sqlite3"
-    legacy_dir: Path = BACKEND_DIR / "data"
+    database_path: Path = BACKEND_DIR / "data" / "flash_training_v2.sqlite3"
+    catalog_path: Path = BACKEND_DIR / "data" / "career_catalog.json"
     ai_api_key: str = field(default="", repr=False)
     ai_base_url: str = "https://api.openai.com/v1"
     ai_model: str = ""
@@ -22,7 +22,7 @@ class Settings:
     def from_env(cls):
         # EDIT GPT CONFIG HERE: backend/.env.ai; secrets never belong in frontend/.
         load_dotenv(BACKEND_DIR / ".env.ai", override=False)
-        path = Path(os.getenv("FLASH_DATABASE_PATH", "data/flash_training.sqlite3"))
+        path = Path(os.getenv("FLASH_DATABASE_PATH", "data/flash_training_v2.sqlite3"))
         if not path.is_absolute():
             path = BACKEND_DIR / path
         style = os.getenv("AI_API_STYLE", "responses")

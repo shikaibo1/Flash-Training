@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import datetime
 from ..domain.learning import utc_now
 from ..domain.models import PracticeRecord, SkillProgress, SkillStatistics, UserProfile
 from ..domain.ports import UnitOfWorkFactory
@@ -25,9 +26,9 @@ class RecordService:
 
     def profile(self, user_id: str) -> UserProfile:
         with self._work.read() as unit:
-            legacy = unit.users.legacy_profiles(user_id)
             records = unit.practices.records(user_id)
-        # Records are newest first; retain the first record's time and score.
+        # Completion order can differ from session start order.
+        records = sorted(records, key=lambda record: datetime.fromisoformat(record.end_time), reverse=True)
         skills: dict[str, SkillStatistics] = {}
         for record in records:
             entry = skills.get(record.skill_id)
@@ -37,4 +38,4 @@ class RecordService:
             skills[record.skill_id] = SkillStatistics(practice_count=count + 1,
                 avg_score=(entry.avg_score * count + record.score) / (count + 1),
                 last_score=entry.last_score, last_practice_time=entry.last_practice_time)
-        return UserProfile(user_id=user_id, skills=skills, legacy_profiles=legacy)
+        return UserProfile(user_id=user_id, skills=skills)
